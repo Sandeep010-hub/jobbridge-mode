@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { Github, BookmarkIcon, Upload } from 'lucide-react';
+import { Github, TrendingUp } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -60,6 +60,12 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/trending" className="text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                  <TrendingUp className="w-4 h-4" />
+                  Trending
+                </Link>
+              </li>
+              <li>
                 <Link to="/upload" className="text-gray-400 hover:text-white transition-colors">
                   Upload Project
                 </Link>
@@ -69,11 +75,6 @@ export function Footer() {
                   Community
                 </Link>
               </li>
-              <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  API Docs
-                </a>
-              </li>
             </ul>
           </div>
 
@@ -82,24 +83,24 @@ export function Footer() {
             <h3 className="text-white font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/about" className="text-gray-400 hover:text-white transition-colors">
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/careers" className="text-gray-400 hover:text-white transition-colors">
                   Careers
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/privacy" className="text-gray-400 hover:text-white transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/terms" className="text-gray-400 hover:text-white transition-colors">
                   Terms of Service
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
