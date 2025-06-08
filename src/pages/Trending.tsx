@@ -1,4 +1,3 @@
-
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { ProjectCard } from '@/components/ProjectCard';
@@ -225,7 +224,7 @@ export default function Trending() {
                     </div>
                   </div>
                 )}
-                <ProjectCard project={project} variant="trending" />
+                <ProjectCard project={project} />
               </div>
             ))}
           </div>
