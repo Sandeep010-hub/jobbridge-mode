@@ -127,7 +127,7 @@ const featuredMembers = [
 export default function Community() {
   const [activeTab, setActiveTab] = useState('feed');
   const [newPost, setNewPost] = useState('');
-  const [posts, setPosts] = useState(communityPosts);
+  const [posts, setPosts] = useState(communityPosts || []);
   const { toast } = useToast();
 
   const handlePost = (e: React.FormEvent) => {
@@ -245,7 +245,7 @@ export default function Community() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {trendingTopics.map((topic, index) => (
+                  {(trendingTopics || []).map((topic, index) => (
                     <div key={index} className="flex justify-between items-center">
                       <div>
                         <div className="text-white font-medium text-sm">{topic.name}</div>
@@ -270,7 +270,7 @@ export default function Community() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {upcomingEvents.map((event) => (
+                  {(upcomingEvents || []).map((event) => (
                     <div key={event.id} className="p-3 rounded-lg bg-slate-800/30">
                       <h4 className="text-white font-medium text-sm mb-1">{event.title}</h4>
                       <p className="text-gray-400 text-xs mb-2">{event.description}</p>
@@ -338,21 +338,21 @@ export default function Community() {
 
                 {/* Posts Feed */}
                 <div className="space-y-6">
-                  {posts.map((post) => (
+                  {(posts || []).map((post) => (
                     <Card key={post.id} className="glass-dark border-white/10">
                       <CardContent className="p-6">
                         {/* Post Header */}
                         <div className="flex items-center space-x-3 mb-4">
                           <Avatar className="w-10 h-10">
-                            <AvatarImage src={post.author.avatar} />
-                            <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
+                            <AvatarImage src={post.author?.avatar} />
+                            <AvatarFallback>{post.author?.name?.charAt(0) || 'U'}</AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center space-x-2">
-                              <span className="text-white font-medium">{post.author.name}</span>
+                              <span className="text-white font-medium">{post.author?.name || 'Unknown User'}</span>
                               <span className="text-gray-500 text-sm">{post.timestamp}</span>
                             </div>
-                            <div className="text-gray-400 text-sm">{post.author.followers} followers</div>
+                            <div className="text-gray-400 text-sm">{post.author?.followers || 0} followers</div>
                           </div>
                         </div>
 
@@ -373,7 +373,7 @@ export default function Community() {
                         )}
 
                         {/* Tags */}
-                        {post.tags.length > 0 && (
+                        {post.tags && post.tags.length > 0 && (
                           <div className="flex flex-wrap gap-2 mb-4">
                             {post.tags.map((tag) => (
                               <Badge 
@@ -397,11 +397,11 @@ export default function Community() {
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                               </svg>
-                              <span>{post.likes}</span>
+                              <span>{post.likes || 0}</span>
                             </button>
                             <button className="flex items-center space-x-2 text-gray-400 hover:text-blue-400 transition-colors">
                               <MessageCircle className="w-5 h-5" />
-                              <span>{post.comments}</span>
+                              <span>{post.comments || 0}</span>
                             </button>
                           </div>
                           <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
@@ -455,7 +455,7 @@ export default function Community() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {featuredMembers.map((member) => (
+                  {(featuredMembers || []).map((member) => (
                     <ProfileCard key={member.id} profile={member} variant="compact" />
                   ))}
                 </div>
@@ -471,7 +471,7 @@ export default function Community() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
-                  {upcomingEvents.map((event) => (
+                  {(upcomingEvents || []).map((event) => (
                     <Card key={event.id} className="glass-dark border-white/10">
                       <CardContent className="p-6">
                         <div className="flex justify-between items-start">
