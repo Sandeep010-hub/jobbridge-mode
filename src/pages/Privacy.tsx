@@ -3,13 +3,16 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 export default function Privacy() {
+  useScrollToTop();
+
   return (
     <div className="min-h-screen bg-slate-900">
       <Navbar />
       
-      <section className="py-20">
+      <section className="py-20 pt-32">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <Badge variant="outline" className="mb-6 border-purple-500/30 text-purple-300">
