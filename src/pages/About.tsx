@@ -1,4 +1,3 @@
-
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Users, Target, Zap, Heart } from 'lucide-react';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 const team = [
   {
@@ -59,12 +59,14 @@ const values = [
 ];
 
 export default function About() {
+  useScrollToTop();
+
   return (
     <div className="min-h-screen bg-slate-900">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative py-20">
+      <section className="relative py-20 pt-32">
         <div className="absolute inset-0 animated-bg opacity-10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge variant="outline" className="mb-6 border-purple-500/30 text-purple-300">

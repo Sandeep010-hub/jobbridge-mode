@@ -12,13 +12,19 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Menu, X, Upload, User, Settings, LogOut, TrendingUp } from 'lucide-react';
+import { useNavbarScroll } from '@/hooks/useNavbarScroll';
 
 export function Navbar() {
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isScrolled = useNavbarScroll();
 
   return (
-    <nav className="fixed top-0 w-full z-50 glass-dark border-b border-white/10">
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${
+      isScrolled 
+        ? 'glass-dark border-white/10' 
+        : 'bg-transparent border-transparent'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}

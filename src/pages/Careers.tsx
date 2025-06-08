@@ -1,10 +1,10 @@
-
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, DollarSign, Users, Code, Briefcase } from 'lucide-react';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 
 const jobs = [
   {
@@ -93,12 +93,14 @@ const perks = [
 ];
 
 export default function Careers() {
+  useScrollToTop();
+
   return (
     <div className="min-h-screen bg-slate-900">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative py-20">
+      <section className="relative py-20 pt-32">
         <div className="absolute inset-0 animated-bg opacity-10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Badge variant="outline" className="mb-6 border-purple-500/30 text-purple-300">
