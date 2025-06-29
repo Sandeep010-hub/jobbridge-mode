@@ -12,19 +12,13 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Menu, X, Upload, User, Settings, LogOut, TrendingUp } from 'lucide-react';
-import { useNavbarScroll } from '@/hooks/useNavbarScroll';
 
 export function Navbar() {
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isScrolled = useNavbarScroll();
 
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${
-      isScrolled 
-        ? 'glass-dark border-white/10' 
-        : 'bg-transparent border-transparent'
-    }`}>
+    <nav className="fixed top-0 w-full z-50 glass-dark border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -37,17 +31,8 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/for-students" className="text-gray-300 hover:text-white transition-colors">
-              For Students
-            </Link>
-            <Link to="/for-recruiters" className="text-gray-300 hover:text-white transition-colors">
-              For Recruiters
-            </Link>
             <Link to="/explore" className="text-gray-300 hover:text-white transition-colors">
               Explore
-            </Link>
-            <Link to="/how-it-works" className="text-gray-300 hover:text-white transition-colors">
-              How It Works
             </Link>
             <Link to="/trending" className="text-gray-300 hover:text-white transition-colors flex items-center gap-1">
               <TrendingUp className="w-4 h-4" />
@@ -123,17 +108,8 @@ export function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-white/10">
             <div className="flex flex-col space-y-4">
-              <Link to="/for-students" className="text-gray-300 hover:text-white transition-colors px-4">
-                For Students
-              </Link>
-              <Link to="/for-recruiters" className="text-gray-300 hover:text-white transition-colors px-4">
-                For Recruiters
-              </Link>
               <Link to="/explore" className="text-gray-300 hover:text-white transition-colors px-4">
                 Explore
-              </Link>
-              <Link to="/how-it-works" className="text-gray-300 hover:text-white transition-colors px-4">
-                How It Works
               </Link>
               <Link to="/trending" className="text-gray-300 hover:text-white transition-colors px-4 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />

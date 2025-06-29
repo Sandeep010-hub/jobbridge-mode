@@ -58,27 +58,6 @@ const featuredProjects = [
   }
 ];
 
-const testimonials = [
-  {
-    quote: "JobBridge helped me discover incredible talent that I never would have found through traditional recruiting.",
-    author: "Jennifer Walsh",
-    role: "CTO at TechFlow",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150&h=150&fit=crop&crop=face"
-  },
-  {
-    quote: "Landing my dream job at a Y Combinator startup through my project showcase was amazing. This platform works!",
-    author: "David Park",
-    role: "Full-Stack Developer",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-  },
-  {
-    quote: "The AI-powered matching connected me with companies looking for exactly my skill set. Game changer!",
-    author: "Maya Patel",
-    role: "AI/ML Engineer",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
-  }
-];
-
 export default function Index() {
   const { user } = useAuth();
 
@@ -120,14 +99,14 @@ export default function Index() {
               {!user ? (
                 <>
                   <Button size="lg" className="gradient-primary hover:opacity-90 text-lg px-8 py-4" asChild>
-                    <Link to="/for-students">
-                      For Students
+                    <Link to="/register">
+                      Get Started
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4" asChild>
-                    <Link to="/for-recruiters">
-                      For Recruiters
+                    <Link to="/explore">
+                      Explore Projects
                     </Link>
                   </Button>
                 </>
@@ -146,22 +125,6 @@ export default function Index() {
                   </Button>
                 </>
               )}
-            </div>
-
-            {/* Quick Links */}
-            <div className="flex flex-wrap justify-center gap-6 mb-16 text-sm">
-              <Link to="/how-it-works" className="text-gray-400 hover:text-white transition-colors flex items-center gap-1">
-                Learn how it works
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-              <Link to="/explore" className="text-gray-400 hover:text-white transition-colors flex items-center gap-1">
-                Browse projects
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-              <Link to="/trending" className="text-gray-400 hover:text-white transition-colors flex items-center gap-1">
-                See what's trending
-                <ArrowRight className="w-3 h-3" />
-              </Link>
             </div>
 
             {/* Stats */}
@@ -216,145 +179,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-20 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            {/* For Students */}
-            <div className="glass rounded-2xl p-8">
-              <div className="inline-flex items-center space-x-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-6">
-                <span className="text-blue-300 text-sm font-medium">For Students</span>
-              </div>
-              
-              <h3 className="text-3xl font-space font-bold text-white mb-6">
-                Showcase Your Skills
-              </h3>
-              
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center mt-0.5">
-                    <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                  </div>
-                  <div>
-                    <div className="text-white font-medium">Project-Based Portfolio</div>
-                    <div className="text-gray-400 text-sm">Show real work, not just resumes</div>
-                  </div>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center mt-0.5">
-                    <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                  </div>
-                  <div>
-                    <div className="text-white font-medium">AI-Powered Enhancement</div>
-                    <div className="text-gray-400 text-sm">Professional summaries and smart tagging</div>
-                  </div>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center mt-0.5">
-                    <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                  </div>
-                  <div>
-                    <div className="text-white font-medium">Direct Opportunities</div>
-                    <div className="text-gray-400 text-sm">Get contacted by recruiters directly</div>
-                  </div>
-                </li>
-              </ul>
-              
-              <Button className="gradient-primary hover:opacity-90" asChild>
-                <Link to="/for-students">
-                  Learn More
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-
-            {/* For Recruiters */}
-            <div className="glass rounded-2xl p-8">
-              <div className="inline-flex items-center space-x-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-2 mb-6">
-                <span className="text-purple-300 text-sm font-medium">For Recruiters</span>
-              </div>
-              
-              <h3 className="text-3xl font-space font-bold text-white mb-6">
-                Discover Real Talent
-              </h3>
-              
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center mt-0.5">
-                    <div className="w-2 h-2 rounded-full bg-purple-400"></div>
-                  </div>
-                  <div>
-                    <div className="text-white font-medium">Skills-Based Hiring</div>
-                    <div className="text-gray-400 text-sm">Evaluate actual work, not just credentials</div>
-                  </div>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center mt-0.5">
-                    <div className="w-2 h-2 rounded-full bg-purple-400"></div>
-                  </div>
-                  <div>
-                    <div className="text-white font-medium">AI-Powered Matching</div>
-                    <div className="text-gray-400 text-sm">Find perfect candidates with precision</div>
-                  </div>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center mt-0.5">
-                    <div className="w-2 h-2 rounded-full bg-purple-400"></div>
-                  </div>
-                  <div>
-                    <div className="text-white font-medium">Direct Connection</div>
-                    <div className="text-gray-400 text-sm">Connect with candidates instantly</div>
-                  </div>
-                </li>
-              </ul>
-              
-              <Button className="gradient-primary hover:opacity-90" asChild>
-                <Link to="/for-recruiters">
-                  Learn More
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-space font-bold text-white mb-4">
-              Success Stories
-            </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Hear from students and recruiters who found success on JobBridge
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="glass rounded-xl p-6 hover-lift">
-                <p className="text-gray-300 mb-6 italic">
-                  "{testimonial.quote}"
-                </p>
-                <div className="flex items-center space-x-3">
-                  <img 
-                    src={testimonial.avatar} 
-                    alt={testimonial.author}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <div className="text-white font-medium">{testimonial.author}</div>
-                    <div className="text-gray-400 text-sm">{testimonial.role}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-20 relative">
         <div className="absolute inset-0 gradient-primary opacity-10"></div>
@@ -374,8 +198,8 @@ export default function Index() {
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 text-lg px-8 py-4" asChild>
-              <Link to="/how-it-works">
-                Learn How It Works
+              <Link to="/explore">
+                Explore Projects
               </Link>
             </Button>
           </div>
