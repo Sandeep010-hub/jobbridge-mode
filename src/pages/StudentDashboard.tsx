@@ -1,80 +1,93 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { ProjectCard } from '@/components/ProjectCard';
+import { GitHubConnect } from '@/components/GitHubConnect';
+import { AIProjectCard } from '@/components/AIProjectCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { Upload, Plus, BarChart3, Users, Eye, Github } from 'lucide-react';
-
-// Mock data for user's projects
-const userProjects = [
-  {
-    id: '1',
-    title: 'AI-Powered Code Review Tool',
-    description: 'Machine learning model that automatically reviews code and suggests improvements.',
-    image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&h=400&fit=crop',
-    tags: ['AI/ML', 'Python', 'TensorFlow', 'React'],
-    author: {
-      name: 'Sarah Chen',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150&h=150&fit=crop&crop=face',
-      id: '1'
-    },
-    githubUrl: 'https://github.com',
-    liveUrl: 'https://demo.com',
-    likes: 1247,
-    comments: 89,
-    status: 'published',
-    views: 3247,
-    createdAt: '2024-01-15'
-  },
-  {
-    id: '2',
-    title: 'Real-time Chat Application',
-    description: 'WebSocket-based chat app with file sharing and video calls.',
-    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop',
-    tags: ['React', 'Node.js', 'Socket.io', 'WebRTC'],
-    author: {
-      name: 'Sarah Chen',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150&h=150&fit=crop&crop=face',
-      id: '1'
-    },
-    githubUrl: 'https://github.com',
-    likes: 456,
-    comments: 23,
-    status: 'draft',
-    views: 0,
-    createdAt: '2024-01-10'
-  }
-];
-
-const recentActivity = [
-  { type: 'like', project: 'AI-Powered Code Review Tool', user: 'John Doe', time: '2 hours ago' },
-  { type: 'comment', project: 'AI-Powered Code Review Tool', user: 'Jane Smith', time: '5 hours ago' },
-  { type: 'view', project: 'Real-time Chat Application', user: 'TechCorp Recruiter', time: '1 day ago' },
-  { type: 'follow', user: 'Alex Rivera', time: '2 days ago' },
-];
+import { projectsAPI, aiAPI } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
+import { Upload, Plus, BarChart3, Users, Eye, Github, Zap, TrendingUp, Target } from 'lucide-react';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
+  const [projects, setProjects] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [skillGaps, setSkillGaps] = useState(null);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
 
-  const publishedProjects = userProjects.filter(p => p.status === 'published');
-  const draftProjects = userProjects.filter(p => p.status === 'draft');
+  useEffect(() => {
+    if (user) {
+      fetchUserProjects();
+      fetchSkillGaps();
+    }
+  }, [user]);
 
-  const totalLikes = publishedProjects.reduce((sum, project) => sum + project.likes, 0);
-  const totalViews = publishedProjects.reduce((sum, project) => sum + project.views, 0);
-  const totalComments = publishedProjects.reduce((sum, project) => sum + project.comments, 0);
+  const fetchUserProjects = async () => {
+    try {
+      const response = await projectsAPI.getUserProjects(user.id);
+      setProjects(response.data.projects);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchSkillGaps = async () => {
+    try {
+      const response = await aiAPI.analyzeSkillGaps();
+      setSkillGaps(response.data);
+    } catch (error) {
+      console.error('Error fetching skill gaps:', error);
+    }
+  };
+
+  const handleProjectsSync = () => {
+    fetchUserProjects();
+    toast({
+      title: "Projects Updated!",
+      description: "Your projects have been synced successfully.",
+    });
+  };
+
+  const generateAISummary = async () => {
+    setIsGeneratingAI(true);
+    try {
+      const response = await aiAPI.generateUserSummary(user.id);
+      toast({
+        title: "AI Summary Generated!",
+        description: "Your profile summary has been updated with AI insights.",
+      });
+    } catch (error) {
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate AI summary. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
+  const publishedProjects = projects.filter(p => p.isPublic);
+  const draftProjects = projects.filter(p => !p.isPublic);
+
+  const totalLikes = publishedProjects.reduce((sum, project) => sum + (project.likes || 0), 0);
+  const totalViews = publishedProjects.reduce((sum, project) => sum + (project.views || 0), 0);
+  const totalStars = publishedProjects.reduce((sum, project) => sum + (project.stars || 0), 0);
 
   return (
     <div className="min-h-screen bg-slate-900">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
@@ -82,7 +95,7 @@ export default function StudentDashboard() {
               Welcome back, {user?.name}!
             </h1>
             <p className="text-gray-400">
-              Manage your projects and track your progress
+              Manage your AI-powered developer portfolio
             </p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-3">
@@ -151,11 +164,13 @@ export default function StudentDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Followers</p>
-                  <p className="text-2xl font-bold text-white">{user?.followers || 0}</p>
+                  <p className="text-gray-400 text-sm">GitHub Stars</p>
+                  <p className="text-2xl font-bold text-white">{totalStars.toLocaleString()}</p>
                 </div>
-                <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-purple-400" />
+                <div className="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
                 </div>
               </div>
             </CardContent>
@@ -171,94 +186,123 @@ export default function StudentDashboard() {
             <TabsTrigger value="projects" className="text-white data-[state=active]:bg-purple-500">
               Projects
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="text-white data-[state=active]:bg-purple-500">
-              Analytics
-            </TabsTrigger>
             <TabsTrigger value="ai-tools" className="text-white data-[state=active]:bg-purple-500">
               AI Tools
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="text-white data-[state=active]:bg-purple-500">
+              Analytics
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Recent Projects */}
+              {/* GitHub Integration */}
               <div className="lg:col-span-2">
-                <Card className="glass-dark border-white/10">
-                  <CardHeader>
-                    <CardTitle className="text-white">Recent Projects</CardTitle>
-                    <CardDescription className="text-gray-400">
-                      Your latest project uploads and updates
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {userProjects.slice(0, 3).map((project) => (
-                        <div key={project.id} className="flex items-center space-x-4 p-4 rounded-lg bg-slate-800/30">
-                          <img 
-                            src={project.image} 
-                            alt={project.title}
-                            className="w-16 h-16 rounded-lg object-cover"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-white font-medium truncate">{project.title}</h4>
-                            <p className="text-gray-400 text-sm truncate">{project.description}</p>
-                            <div className="flex items-center space-x-4 mt-2">
-                              <span className="text-xs text-gray-500">{project.likes} likes</span>
-                              <span className="text-xs text-gray-500">{project.views} views</span>
-                              <Badge 
-                                variant={project.status === 'published' ? 'default' : 'secondary'}
-                                className={project.status === 'published' ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}
-                              >
-                                {project.status}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4 text-center">
-                      <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10">
-                        View All Projects
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <GitHubConnect onProjectsSync={handleProjectsSync} />
               </div>
 
-              {/* Recent Activity */}
+              {/* AI Profile Summary */}
               <div>
-                <Card className="glass-dark border-white/10">
+                <Card className="glass-dark border-purple-500/30">
                   <CardHeader>
-                    <CardTitle className="text-white">Recent Activity</CardTitle>
+                    <CardTitle className="text-white flex items-center">
+                      <Zap className="w-5 h-5 mr-2 text-purple-400" />
+                      AI Profile Summary
+                    </CardTitle>
                     <CardDescription className="text-gray-400">
-                      Latest interactions with your projects
+                      Generate an AI-powered professional summary
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {recentActivity.map((activity, index) => (
-                        <div key={index} className="flex items-start space-x-3">
-                          <div className="w-2 h-2 rounded-full bg-purple-400 mt-2"></div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-gray-300">
-                              <span className="text-white">{activity.user}</span>
-                              {activity.type === 'like' && ' liked'}
-                              {activity.type === 'comment' && ' commented on'}
-                              {activity.type === 'view' && ' viewed'}
-                              {activity.type === 'follow' && ' started following you'}
-                              {activity.project && (
-                                <> <span className="text-purple-300">{activity.project}</span></>
-                              )}
-                            </p>
-                            <p className="text-xs text-gray-500">{activity.time}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    {user?.aiSummary ? (
+                      <div className="space-y-4">
+                        <p className="text-gray-300 text-sm leading-relaxed">
+                          {user.aiSummary}
+                        </p>
+                        <Button
+                          onClick={generateAISummary}
+                          disabled={isGeneratingAI}
+                          variant="outline"
+                          className="w-full border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+                        >
+                          {isGeneratingAI ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400 mr-2"></div>
+                              Regenerating...
+                            </>
+                          ) : (
+                            <>
+                              <Zap className="w-4 h-4 mr-2" />
+                              Regenerate
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <p className="text-gray-400 text-sm">
+                          Generate a professional summary based on your projects and skills
+                        </p>
+                        <Button
+                          onClick={generateAISummary}
+                          disabled={isGeneratingAI}
+                          className="w-full gradient-primary hover:opacity-90"
+                        >
+                          {isGeneratingAI ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Zap className="w-4 h-4 mr-2" />
+                              Generate AI Summary
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
             </div>
+
+            {/* Recent Projects */}
+            <Card className="glass-dark border-white/10">
+              <CardHeader>
+                <CardTitle className="text-white">Recent Projects</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Your latest AI-enhanced project uploads
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div>
+                  </div>
+                ) : projects.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {projects.slice(0, 6).map((project) => (
+                      <AIProjectCard key={project.id} project={project} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Github className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-white font-semibold mb-2">No projects yet</h3>
+                    <p className="text-gray-400 mb-4">
+                      Connect your GitHub account or upload your first project
+                    </p>
+                    <Button className="gradient-primary hover:opacity-90" asChild>
+                      <Link to="/upload">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Upload Project
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="projects" className="space-y-6">
@@ -278,33 +322,142 @@ export default function StudentDashboard() {
                   Published ({publishedProjects.length})
                 </TabsTrigger>
                 <TabsTrigger value="drafts" className="text-white data-[state=active]:bg-purple-500">
-                  Drafts ({draftProjects.length})
+                  Private ({draftProjects.length})
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="published">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {publishedProjects.map((project) => (
-                    <ProjectCard key={project.id} project={project} />
-                  ))}
-                </div>
+                {publishedProjects.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {publishedProjects.map((project) => (
+                      <AIProjectCard key={project.id} project={project} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Upload className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-white font-semibold mb-2">No published projects</h3>
+                    <p className="text-gray-400 mb-4">
+                      Upload your first project to showcase your skills
+                    </p>
+                    <Button className="gradient-primary hover:opacity-90" asChild>
+                      <Link to="/upload">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Upload Project
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="drafts">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {draftProjects.map((project) => (
-                    <div key={project.id} className="relative">
-                      <ProjectCard project={project} />
-                      <div className="absolute top-4 left-4">
-                        <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
-                          Draft
-                        </Badge>
+                {draftProjects.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {draftProjects.map((project) => (
+                      <div key={project.id} className="relative">
+                        <AIProjectCard project={project} />
+                        <div className="absolute top-4 left-4">
+                          <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
+                            Private
+                          </Badge>
+                        </div>
                       </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                      <Eye className="w-8 h-8 text-gray-600" />
                     </div>
-                  ))}
-                </div>
+                    <h3 className="text-white font-semibold mb-2">No private projects</h3>
+                    <p className="text-gray-400">
+                      All your projects are public and visible to recruiters
+                    </p>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
+          </TabsContent>
+
+          <TabsContent value="ai-tools" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* AI Profile Summary */}
+              <Card className="glass-dark border-white/10 border-purple-500/30">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <Zap className="w-5 h-5 mr-2 text-purple-400" />
+                    AI Profile Summary
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Generate compelling profile descriptions using AI
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button 
+                    onClick={generateAISummary}
+                    disabled={isGeneratingAI}
+                    className="w-full gradient-primary hover:opacity-90"
+                  >
+                    {isGeneratingAI ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-4 h-4 mr-2" />
+                        Generate Summary
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Skill Gap Analysis */}
+              <Card className="glass-dark border-white/10 border-blue-500/30">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center">
+                    <Target className="w-5 h-5 mr-2 text-blue-400" />
+                    Skill Gap Analysis
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Identify trending skills and technologies to learn
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {skillGaps ? (
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-white font-medium mb-2">Recommended Skills</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {skillGaps.skillGaps.slice(0, 3).map((skill) => (
+                            <Badge key={skill} className="bg-blue-500/20 text-blue-300 border-blue-500/30">
+                              {skill}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={fetchSkillGaps}
+                        variant="outline"
+                        className="w-full border-blue-500/30 text-blue-300 hover:bg-blue-500/10"
+                      >
+                        <TrendingUp className="w-4 h-4 mr-2" />
+                        Refresh Analysis
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button 
+                      onClick={fetchSkillGaps}
+                      className="w-full gradient-primary hover:opacity-90"
+                    >
+                      <Target className="w-4 h-4 mr-2" />
+                      Analyze Skills
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
@@ -318,16 +471,20 @@ export default function StudentDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {publishedProjects.map((project) => (
+                    {publishedProjects.slice(0, 5).map((project) => (
                       <div key={project.id} className="space-y-2">
                         <div className="flex justify-between items-center">
                           <span className="text-white text-sm truncate">{project.title}</span>
-                          <span className="text-gray-400 text-sm">{project.views} views</span>
+                          <span className="text-gray-400 text-sm">{project.views || 0} views</span>
                         </div>
                         <div className="w-full bg-slate-700 rounded-full h-2">
                           <div 
                             className="gradient-primary h-2 rounded-full" 
-                            style={{ width: `${(project.views / Math.max(...publishedProjects.map(p => p.views))) * 100}%` }}
+                            style={{ 
+                              width: `${publishedProjects.length > 0 ? 
+                                ((project.views || 0) / Math.max(...publishedProjects.map(p => p.views || 0), 1)) * 100 
+                                : 0}%` 
+                            }}
                           ></div>
                         </div>
                       </div>
@@ -347,8 +504,8 @@ export default function StudentDashboard() {
                       <div className="text-gray-400 text-sm">Total Likes</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-white mb-2">{totalComments}</div>
-                      <div className="text-gray-400 text-sm">Total Comments</div>
+                      <div className="text-3xl font-bold text-white mb-2">{totalViews}</div>
+                      <div className="text-gray-400 text-sm">Total Views</div>
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-white mb-2">
@@ -357,78 +514,6 @@ export default function StudentDashboard() {
                       <div className="text-gray-400 text-sm">Avg Views per Project</div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="ai-tools" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="glass-dark border-white/10 border-purple-500/30">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse mr-2"></div>
-                    AI Project Summary
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Generate compelling project descriptions using AI
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full gradient-primary hover:opacity-90">
-                    Generate Summary
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-dark border-white/10 border-blue-500/30">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse mr-2"></div>
-                    AI Tag Suggestions
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Get intelligent tag recommendations for better discoverability
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full gradient-primary hover:opacity-90">
-                    Suggest Tags
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-dark border-white/10 border-green-500/30">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse mr-2"></div>
-                    Portfolio Optimizer
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    AI analysis of your portfolio with improvement suggestions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full gradient-primary hover:opacity-90">
-                    Analyze Portfolio
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-dark border-white/10 border-yellow-500/30">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse mr-2"></div>
-                    Skill Gap Analysis
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Identify trending skills and technologies to learn
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full gradient-primary hover:opacity-90">
-                    Analyze Skills
-                  </Button>
                 </CardContent>
               </Card>
             </div>

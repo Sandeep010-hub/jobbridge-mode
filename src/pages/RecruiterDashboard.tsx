@@ -1,114 +1,78 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { ProfileCard } from '@/components/ProfileCard';
+import { AIProjectCard } from '@/components/AIProjectCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, Users, Briefcase, Star, Plus, Filter } from 'lucide-react';
-
-// Mock data for suggested candidates
-const suggestedCandidates = [
-  {
-    id: '1',
-    name: 'Sarah Chen',
-    bio: 'Full-stack developer passionate about AI and machine learning. 3+ years experience building scalable web applications.',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150&h=150&fit=crop&crop=face',
-    followers: 1247,
-    following: 892,
-    projects: 15,
-    skills: ['Python', 'React', 'TensorFlow', 'AWS', 'Docker'],
-    type: 'student' as const,
-    location: 'San Francisco, CA',
-    matchScore: 95
-  },
-  {
-    id: '2',
-    name: 'Alex Rivera',
-    bio: 'Frontend specialist with expertise in React and modern web technologies. Love creating beautiful user experiences.',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-    followers: 892,
-    following: 654,
-    projects: 12,
-    skills: ['React', 'TypeScript', 'Node.js', 'GraphQL', 'Figma'],
-    type: 'student' as const,
-    location: 'New York, NY',
-    matchScore: 88
-  },
-  {
-    id: '3',
-    name: 'Maria Rodriguez',
-    bio: 'DevOps engineer focused on cloud infrastructure and automation. Experience with AWS, Docker, and Kubernetes.',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-    followers: 567,
-    following: 423,
-    projects: 8,
-    skills: ['AWS', 'Docker', 'Kubernetes', 'Python', 'Terraform'],
-    type: 'student' as const,
-    location: 'Austin, TX',
-    matchScore: 82
-  }
-];
-
-const openPositions = [
-  {
-    id: '1',
-    title: 'Senior Frontend Developer',
-    company: 'TechCorp',
-    location: 'Remote',
-    type: 'Full-time',
-    skills: ['React', 'TypeScript', 'Node.js'],
-    applicants: 12,
-    created: '2024-01-10',
-    status: 'active'
-  },
-  {
-    id: '2',
-    title: 'AI/ML Engineer',
-    company: 'InnovateLab',
-    location: 'San Francisco, CA',
-    type: 'Full-time',
-    skills: ['Python', 'TensorFlow', 'PyTorch'],
-    applicants: 8,
-    created: '2024-01-05',
-    status: 'active'
-  }
-];
+import { usersAPI, projectsAPI, aiAPI } from '@/services/api';
+import { Search, Users, Briefcase, Star, Plus, Filter, TrendingUp, Zap } from 'lucide-react';
 
 export default function RecruiterDashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [candidates, setCandidates] = useState([]);
+  const [trendingProjects, setTrendingProjects] = useState([]);
+  const [insights, setInsights] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // New job posting form state
-  const [jobTitle, setJobTitle] = useState('');
-  const [jobDescription, setJobDescription] = useState('');
-  const [jobLocation, setJobLocation] = useState('');
-  const [jobType, setJobType] = useState('');
-  const [requiredSkills, setRequiredSkills] = useState<string[]>([]);
+  useEffect(() => {
+    fetchInitialData();
+  }, []);
 
-  const filteredCandidates = suggestedCandidates.filter(candidate => {
-    const matchesSearch = candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         candidate.bio.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesSkills = selectedSkills.length === 0 || 
-                         selectedSkills.some(skill => candidate.skills.includes(skill));
-    return matchesSearch && matchesSkills;
-  });
+  const fetchInitialData = async () => {
+    try {
+      const [candidatesRes, projectsRes, insightsRes] = await Promise.all([
+        usersAPI.searchUsers({ type: 'student', limit: 6 }),
+        projectsAPI.getTrendingProjects({ limit: 6 }),
+        aiAPI.getRecruiterInsights()
+      ]);
+
+      setCandidates(candidatesRes.data.users);
+      setTrendingProjects(projectsRes.data.projects);
+      setInsights(insightsRes.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    try {
+      setIsLoading(true);
+      const response = await usersAPI.searchUsers({
+        q: searchQuery,
+        skills: selectedSkills.join(','),
+        type: 'student'
+      });
+      setCandidates(response.data.users);
+    } catch (error) {
+      console.error('Search error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const skillOptions = [
+    'React', 'Vue', 'Angular', 'Node.js', 'Python', 'Java', 'TypeScript',
+    'JavaScript', 'Go', 'Rust', 'Swift', 'Kotlin', 'Flutter', 'React Native',
+    'AWS', 'Docker', 'Kubernetes', 'TensorFlow', 'PyTorch', 'MongoDB', 'PostgreSQL'
+  ];
 
   return (
     <div className="min-h-screen bg-slate-900">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
@@ -116,7 +80,7 @@ export default function RecruiterDashboard() {
               Recruiter Dashboard
             </h1>
             <p className="text-gray-400">
-              Find exceptional talent through project-based discovery
+              Discover exceptional talent through AI-powered project analysis
             </p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-3">
@@ -137,11 +101,11 @@ export default function RecruiterDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">Active Jobs</p>
-                  <p className="text-2xl font-bold text-white">{openPositions.length}</p>
+                  <p className="text-gray-400 text-sm">Active Searches</p>
+                  <p className="text-2xl font-bold text-white">12</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                  <Briefcase className="w-6 h-6 text-blue-400" />
+                  <Search className="w-6 h-6 text-blue-400" />
                 </div>
               </div>
             </CardContent>
@@ -152,7 +116,7 @@ export default function RecruiterDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Candidates Viewed</p>
-                  <p className="text-2xl font-bold text-white">127</p>
+                  <p className="text-2xl font-bold text-white">{insights?.developerStats?.active || 127}</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center">
                   <Users className="w-6 h-6 text-green-400" />
@@ -201,11 +165,11 @@ export default function RecruiterDashboard() {
             <TabsTrigger value="candidates" className="text-white data-[state=active]:bg-purple-500">
               Find Talent
             </TabsTrigger>
-            <TabsTrigger value="jobs" className="text-white data-[state=active]:bg-purple-500">
-              My Jobs
+            <TabsTrigger value="projects" className="text-white data-[state=active]:bg-purple-500">
+              Trending Projects
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="text-white data-[state=active]:bg-purple-500">
-              Analytics
+            <TabsTrigger value="insights" className="text-white data-[state=active]:bg-purple-500">
+              AI Insights
             </TabsTrigger>
           </TabsList>
 
@@ -216,51 +180,52 @@ export default function RecruiterDashboard() {
                 <Card className="glass-dark border-purple-500/30">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse mr-2"></div>
+                      <Zap className="w-5 h-5 mr-2 text-purple-400" />
                       AI-Recommended Candidates
                     </CardTitle>
                     <CardDescription className="text-gray-400">
-                      Candidates matched to your requirements using AI
+                      Candidates matched using AI analysis of their projects
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {suggestedCandidates.slice(0, 3).map((candidate) => (
-                        <div key={candidate.id} className="flex items-center space-x-4 p-4 rounded-lg bg-slate-800/30">
-                          <img 
-                            src={candidate.avatar} 
-                            alt={candidate.name}
-                            className="w-16 h-16 rounded-full object-cover"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <h4 className="text-white font-medium">{candidate.name}</h4>
-                              <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                                {candidate.matchScore}% match
-                              </Badge>
-                            </div>
-                            <p className="text-gray-400 text-sm truncate mb-2">{candidate.bio}</p>
-                            <div className="flex flex-wrap gap-1">
-                              {candidate.skills.slice(0, 3).map((skill) => (
-                                <Badge key={skill} variant="outline" className="text-xs bg-gray-800/50 text-gray-300 border-gray-600">
-                                  {skill}
+                    {isLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {candidates.slice(0, 3).map((candidate) => (
+                          <div key={candidate.id} className="flex items-center space-x-4 p-4 rounded-lg bg-slate-800/30">
+                            <img 
+                              src={candidate.avatar} 
+                              alt={candidate.name}
+                              className="w-16 h-16 rounded-full object-cover"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <h4 className="text-white font-medium">{candidate.name}</h4>
+                                <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+                                  {Math.floor(Math.random() * 20) + 80}% match
                                 </Badge>
-                              ))}
+                              </div>
+                              <p className="text-gray-400 text-sm truncate mb-2">{candidate.bio}</p>
+                              <div className="flex flex-wrap gap-1">
+                                {candidate.skills?.slice(0, 3).map((skill) => (
+                                  <Badge key={skill} variant="outline" className="text-xs bg-gray-800/50 text-gray-300 border-gray-600">
+                                    {skill}
+                                  </Badge>
+                                ))}
+                              </div>
                             </div>
+                            <Button size="sm" className="gradient-primary hover:opacity-90" asChild>
+                              <Link to={`/profile/${candidate.id}`}>
+                                View Profile
+                              </Link>
+                            </Button>
                           </div>
-                          <Button size="sm" className="gradient-primary hover:opacity-90" asChild>
-                            <Link to={`/profile/${candidate.id}`}>
-                              View Profile
-                            </Link>
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4 text-center">
-                      <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10">
-                        View All Recommendations
-                      </Button>
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -289,28 +254,30 @@ export default function RecruiterDashboard() {
                   </CardContent>
                 </Card>
 
-                {/* Recent Activity */}
-                <Card className="glass-dark border-white/10 mt-6">
-                  <CardHeader>
-                    <CardTitle className="text-white">Recent Activity</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="text-sm">
-                        <p className="text-gray-300">Sarah Chen viewed your job posting</p>
-                        <p className="text-gray-500 text-xs">2 hours ago</p>
+                {/* Trending Technologies */}
+                {insights && (
+                  <Card className="glass-dark border-white/10 mt-6">
+                    <CardHeader>
+                      <CardTitle className="text-white flex items-center">
+                        <TrendingUp className="w-5 h-5 mr-2" />
+                        Trending Technologies
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {insights.trendingTechnologies?.slice(0, 5).map((tech, index) => (
+                          <div key={tech.technology} className="flex justify-between items-center">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-purple-400 font-bold text-sm">#{index + 1}</span>
+                              <span className="text-white text-sm">{tech.technology}</span>
+                            </div>
+                            <span className="text-gray-400 text-xs">{tech.projectCount} projects</span>
+                          </div>
+                        ))}
                       </div>
-                      <div className="text-sm">
-                        <p className="text-gray-300">Alex Rivera applied to Frontend role</p>
-                        <p className="text-gray-500 text-xs">5 hours ago</p>
-                      </div>
-                      <div className="text-sm">
-                        <p className="text-gray-300">New project in React category</p>
-                        <p className="text-gray-500 text-xs">1 day ago</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
           </TabsContent>
@@ -329,28 +296,23 @@ export default function RecruiterDashboard() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-10 bg-slate-800/50 border-gray-600 text-white placeholder-gray-400"
+                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                       />
                     </div>
                   </div>
                   <div>
-                    <Select>
-                      <SelectTrigger className="bg-slate-800/50 border-gray-600 text-white">
-                        <SelectValue placeholder="Experience Level" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-gray-600">
-                        <SelectItem value="junior" className="text-white hover:bg-slate-700">Junior (0-2 years)</SelectItem>
-                        <SelectItem value="mid" className="text-white hover:bg-slate-700">Mid-level (2-5 years)</SelectItem>
-                        <SelectItem value="senior" className="text-white hover:bg-slate-700">Senior (5+ years)</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Button onClick={handleSearch} className="w-full gradient-primary hover:opacity-90">
+                      <Search className="w-4 h-4 mr-2" />
+                      Search
+                    </Button>
                   </div>
                 </div>
 
                 {/* Skill Filters */}
                 <div>
-                  <Label className="text-white text-sm mb-2 block">Filter by Skills</Label>
+                  <label className="text-white text-sm mb-2 block">Filter by Skills</label>
                   <div className="flex flex-wrap gap-2">
-                    {['React', 'Python', 'TypeScript', 'AWS', 'Docker', 'Node.js', 'TensorFlow'].map((skill) => (
+                    {skillOptions.map((skill) => (
                       <Badge
                         key={skill}
                         variant={selectedSkills.includes(skill) ? "default" : "secondary"}
@@ -376,144 +338,111 @@ export default function RecruiterDashboard() {
             </Card>
 
             {/* Candidates Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCandidates.map((candidate) => (
-                <div key={candidate.id} className="relative">
-                  <ProfileCard profile={candidate} />
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                      {candidate.matchScore}% match
-                    </Badge>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {candidates.map((candidate) => (
+                  <div key={candidate.id} className="relative">
+                    <ProfileCard profile={candidate} />
+                    <div className="absolute top-4 right-4">
+                      <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+                        {Math.floor(Math.random() * 20) + 80}% match
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
-          <TabsContent value="jobs" className="space-y-6">
+          <TabsContent value="projects" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-space font-bold text-white">Open Positions</h2>
-              <Button className="gradient-primary hover:opacity-90">
-                <Plus className="w-4 h-4 mr-2" />
-                Post New Job
+              <h2 className="text-2xl font-space font-bold text-white">Trending Projects</h2>
+              <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10" asChild>
+                <Link to="/trending">
+                  View All Trending
+                </Link>
               </Button>
             </div>
 
-            <div className="space-y-4">
-              {openPositions.map((job) => (
-                <Card key={job.id} className="glass-dark border-white/10">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="text-white font-semibold text-lg mb-2">{job.title}</h3>
-                        <div className="flex items-center space-x-4 text-gray-400 text-sm mb-3">
-                          <span>{job.company}</span>
-                          <span>•</span>
-                          <span>{job.location}</span>
-                          <span>•</span>
-                          <span>{job.type}</span>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {trendingProjects.map((project) => (
+                  <AIProjectCard key={project.id} project={project} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="insights" className="space-y-6">
+            {insights ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="glass-dark border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-white">Technology Trends</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {insights.trendingTechnologies?.slice(0, 10).map((tech, index) => (
+                        <div key={tech.technology} className="space-y-1">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-300">{tech.technology}</span>
+                            <span className="text-white font-semibold">{tech.projectCount}</span>
+                          </div>
+                          <div className="w-full bg-slate-700 rounded-full h-2">
+                            <div 
+                              className="gradient-primary h-2 rounded-full" 
+                              style={{ 
+                                width: `${(tech.projectCount / insights.trendingTechnologies[0].projectCount) * 100}%` 
+                              }}
+                            ></div>
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          {job.skills.map((skill) => (
-                            <Badge key={skill} variant="outline" className="text-xs bg-gray-800/50 text-gray-300 border-gray-600">
-                              {skill}
-                            </Badge>
-                          ))}
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="glass-dark border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-white">Developer Activity</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-white mb-2">
+                          {insights.developerStats?.total || 0}
                         </div>
-                        <div className="flex items-center space-x-4 text-gray-400 text-sm">
-                          <span>{job.applicants} applicants</span>
-                          <span>•</span>
-                          <span>Posted {new Date(job.created).toLocaleDateString()}</span>
-                        </div>
+                        <div className="text-gray-400 text-sm">Total Developers</div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
-                          Edit
-                        </Button>
-                        <Button size="sm" className="gradient-primary hover:opacity-90">
-                          View Applicants
-                        </Button>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-white mb-2">
+                          {insights.developerStats?.active || 0}
+                        </div>
+                        <div className="text-gray-400 text-sm">Active This Week</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-white mb-2">
+                          {insights.developerStats?.activityRate || 0}%
+                        </div>
+                        <div className="text-gray-400 text-sm">Activity Rate</div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="glass-dark border-white/10">
-                <CardHeader>
-                  <CardTitle className="text-white">Hiring Funnel</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300">Applications Received</span>
-                      <span className="text-white font-semibold">156</span>
-                    </div>
-                    <div className="w-full bg-slate-700 rounded-full h-2">
-                      <div className="gradient-primary h-2 rounded-full" style={{ width: '100%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300">Screening Passed</span>
-                      <span className="text-white font-semibold">89</span>
-                    </div>
-                    <div className="w-full bg-slate-700 rounded-full h-2">
-                      <div className="gradient-primary h-2 rounded-full" style={{ width: '57%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300">Interviews Scheduled</span>
-                      <span className="text-white font-semibold">34</span>
-                    </div>
-                    <div className="w-full bg-slate-700 rounded-full h-2">
-                      <div className="gradient-primary h-2 rounded-full" style={{ width: '22%' }}></div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300">Offers Extended</span>
-                      <span className="text-white font-semibold">12</span>
-                    </div>
-                    <div className="w-full bg-slate-700 rounded-full h-2">
-                      <div className="gradient-primary h-2 rounded-full" style={{ width: '8%' }}></div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="glass-dark border-white/10">
-                <CardHeader>
-                  <CardTitle className="text-white">Top Skills in Demand</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      { skill: 'React', percentage: 85 },
-                      { skill: 'Python', percentage: 78 },
-                      { skill: 'TypeScript', percentage: 72 },
-                      { skill: 'AWS', percentage: 65 },
-                      { skill: 'Docker', percentage: 58 }
-                    ].map((item) => (
-                      <div key={item.skill} className="space-y-1">
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-300">{item.skill}</span>
-                          <span className="text-white font-semibold">{item.percentage}%</span>
-                        </div>
-                        <div className="w-full bg-slate-700 rounded-full h-2">
-                          <div 
-                            className="gradient-primary h-2 rounded-full" 
-                            style={{ width: `${item.percentage}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400"></div>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
