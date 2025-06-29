@@ -37,15 +37,21 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
+            <Link to="/for-students" className="text-gray-300 hover:text-white transition-colors">
+              For Students
+            </Link>
+            <Link to="/for-recruiters" className="text-gray-300 hover:text-white transition-colors">
+              For Recruiters
+            </Link>
             <Link to="/explore" className="text-gray-300 hover:text-white transition-colors">
               Explore
+            </Link>
+            <Link to="/how-it-works" className="text-gray-300 hover:text-white transition-colors">
+              How It Works
             </Link>
             <Link to="/trending" className="text-gray-300 hover:text-white transition-colors flex items-center gap-1">
               <TrendingUp className="w-4 h-4" />
               Trending
-            </Link>
-            <Link to="/community" className="text-gray-300 hover:text-white transition-colors">
-              Community
             </Link>
           </div>
 
@@ -117,15 +123,21 @@ export function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-white/10">
             <div className="flex flex-col space-y-4">
+              <Link to="/for-students" className="text-gray-300 hover:text-white transition-colors px-4">
+                For Students
+              </Link>
+              <Link to="/for-recruiters" className="text-gray-300 hover:text-white transition-colors px-4">
+                For Recruiters
+              </Link>
               <Link to="/explore" className="text-gray-300 hover:text-white transition-colors px-4">
                 Explore
+              </Link>
+              <Link to="/how-it-works" className="text-gray-300 hover:text-white transition-colors px-4">
+                How It Works
               </Link>
               <Link to="/trending" className="text-gray-300 hover:text-white transition-colors px-4 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
                 Trending
-              </Link>
-              <Link to="/community" className="text-gray-300 hover:text-white transition-colors px-4">
-                Community
               </Link>
               
               {user ? (

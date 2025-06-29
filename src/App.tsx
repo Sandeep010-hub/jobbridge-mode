@@ -20,6 +20,9 @@ import About from "./pages/About";
 import Careers from "./pages/Careers";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import HowItWorks from "./pages/HowItWorks";
+import ForStudents from "./pages/ForStudents";
+import ForRecruiters from "./pages/ForRecruiters";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +46,9 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/profile/:id" element={<Profile />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/for-students" element={<ForStudents />} />
+            <Route path="/for-recruiters" element={<ForRecruiters />} />
             <Route path="/about" element={<About />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/privacy" element={<Privacy />} />

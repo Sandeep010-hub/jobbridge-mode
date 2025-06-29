@@ -96,7 +96,7 @@ export default function Index() {
         <div className="absolute top-40 right-20 w-32 h-32 rounded-full bg-blue-500/20 blur-xl animate-float" style={{ animationDelay: '2s' }}></div>
         <div className="absolute bottom-20 left-1/4 w-16 h-16 rounded-full bg-purple-400/20 blur-xl animate-float" style={{ animationDelay: '4s' }}></div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32">
           <div className="text-center">
             {/* Badge */}
             <div className="inline-flex items-center space-x-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-2 mb-8">
@@ -106,11 +106,8 @@ export default function Index() {
 
             {/* Main Headline */}
             <h1 className="text-5xl md:text-7xl font-space font-bold text-white mb-6">
-              Where{' '}
-              <span className="gradient-text">Talent</span>
-              <br />
-              Meets{' '}
-              <span className="gradient-text">Opportunity</span>
+              Bridge Your Projects to{' '}
+              <span className="gradient-text">Real Opportunities</span>
             </h1>
             
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed">
@@ -119,18 +116,18 @@ export default function Index() {
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               {!user ? (
                 <>
                   <Button size="lg" className="gradient-primary hover:opacity-90 text-lg px-8 py-4" asChild>
-                    <Link to="/register">
-                      Get Started Free
+                    <Link to="/for-students">
+                      For Students
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4" asChild>
-                    <Link to="/explore">
-                      Explore Projects
+                    <Link to="/for-recruiters">
+                      For Recruiters
                     </Link>
                   </Button>
                 </>
@@ -149,6 +146,22 @@ export default function Index() {
                   </Button>
                 </>
               )}
+            </div>
+
+            {/* Quick Links */}
+            <div className="flex flex-wrap justify-center gap-6 mb-16 text-sm">
+              <Link to="/how-it-works" className="text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                Learn how it works
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+              <Link to="/explore" className="text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                Browse projects
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+              <Link to="/trending" className="text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                See what's trending
+                <ArrowRight className="w-3 h-3" />
+              </Link>
             </div>
 
             {/* Stats */}
@@ -233,8 +246,8 @@ export default function Index() {
                     <div className="w-2 h-2 rounded-full bg-blue-400"></div>
                   </div>
                   <div>
-                    <div className="text-white font-medium">AI-Powered Matching</div>
-                    <div className="text-gray-400 text-sm">Get matched with relevant opportunities</div>
+                    <div className="text-white font-medium">AI-Powered Enhancement</div>
+                    <div className="text-gray-400 text-sm">Professional summaries and smart tagging</div>
                   </div>
                 </li>
                 <li className="flex items-start space-x-3">
@@ -242,15 +255,15 @@ export default function Index() {
                     <div className="w-2 h-2 rounded-full bg-blue-400"></div>
                   </div>
                   <div>
-                    <div className="text-white font-medium">Community Recognition</div>
-                    <div className="text-gray-400 text-sm">Build reputation and gain followers</div>
+                    <div className="text-white font-medium">Direct Opportunities</div>
+                    <div className="text-gray-400 text-sm">Get contacted by recruiters directly</div>
                   </div>
                 </li>
               </ul>
               
               <Button className="gradient-primary hover:opacity-90" asChild>
-                <Link to="/register">
-                  Join as Student
+                <Link to="/for-students">
+                  Learn More
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
@@ -281,8 +294,8 @@ export default function Index() {
                     <div className="w-2 h-2 rounded-full bg-purple-400"></div>
                   </div>
                   <div>
-                    <div className="text-white font-medium">AI-Powered Screening</div>
-                    <div className="text-gray-400 text-sm">Find perfect candidates faster</div>
+                    <div className="text-white font-medium">AI-Powered Matching</div>
+                    <div className="text-gray-400 text-sm">Find perfect candidates with precision</div>
                   </div>
                 </li>
                 <li className="flex items-start space-x-3">
@@ -290,15 +303,15 @@ export default function Index() {
                     <div className="w-2 h-2 rounded-full bg-purple-400"></div>
                   </div>
                   <div>
-                    <div className="text-white font-medium">Direct Engagement</div>
-                    <div className="text-gray-400 text-sm">Connect directly with top performers</div>
+                    <div className="text-white font-medium">Direct Connection</div>
+                    <div className="text-gray-400 text-sm">Connect with candidates instantly</div>
                   </div>
                 </li>
               </ul>
               
               <Button className="gradient-primary hover:opacity-90" asChild>
-                <Link to="/register">
-                  Join as Recruiter
+                <Link to="/for-recruiters">
+                  Learn More
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
@@ -361,8 +374,8 @@ export default function Index() {
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 text-lg px-8 py-4" asChild>
-              <Link to="/explore">
-                Explore Platform
+              <Link to="/how-it-works">
+                Learn How It Works
               </Link>
             </Button>
           </div>
